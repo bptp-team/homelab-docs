@@ -27,3 +27,5 @@
         height="50"
     />
 </p>
+
+![HomeLab](docs/homelab-diagram.svg)
