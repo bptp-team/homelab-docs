@@ -1,9 +1,9 @@
 > [!WARNING]
 > This repository is **documentation only**. It does not hold:
 >
-> - Infrastructure code
-> - Configuration
-> - Inventories
+> - Infrastructure code;
+> - Configuration;
+> - Inventories;
 > - Credentials
 >
 > There is nothing here to clone and run. The **Terraform** and **Ansible** that build and
@@ -87,8 +87,8 @@ is an **independent node** with a distinct role.
 
 A **Samsung** laptop is dedicated to **DNS** and runs nothing else:
 
-- **Memory:** `4 GB`
-- **Disk:** `240 GB` SanDisk
+- **Memory:** `4 GB`;
+- **Disk:** `240 GB` SanDisk.
 
 Inside it, a **Debian** virtual machine hosts **AdGuard Home** in a **Docker** container. AdGuard
 Home is the DNS server for the whole network: it resolves every query, applies **four
@@ -103,11 +103,11 @@ hosts everything else**.
 
 A **Lenovo IdeaPad S145** is the **main node**, registered in Proxmox as `homelab`:
 
-- **CPU:** `Intel i5-8265U`
-- **Graphics:** `Intel UHD 620`
-- **Memory:** `12 GB`
-- **System disk:** `250 GB` Kingston NVMe
-- **Data disk:** `1 TB` Western Digital
+- **CPU:** `Intel i5-8265U`;
+- **Graphics:** `Intel UHD 620`;
+- **Memory:** `12 GB`;
+- **System disk:** `250 GB` Kingston NVMe;
+- **Data disk:** `1 TB` Western Digital.
 
 Every service other than DNS runs here, inside **LXC containers**. Each container has **Docker**
 installed, so the pattern is **one container per service**, with the service itself running as
