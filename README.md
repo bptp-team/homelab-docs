@@ -1,12 +1,16 @@
 > [!WARNING]
-> This repository is **documentation only**. It holds no infrastructure code, no
-> configuration, no inventories and no credentials, and there is nothing here to clone and
-> run. The **Terraform** and **Ansible** that build and configure this environment live in a
-> separate **private repository**.
+> This repository is **documentation only**. It does not hold:
 >
-> What is published here is the **architecture**, written so it can be read by someone who
-> will never have access to the environment. Values that would be needed to operate it are
-> **deliberately absent**.
+> - Infrastructure code
+> - Configuration
+> - Inventories
+> - Credentials
+>
+> There is nothing here to clone and run. The **Terraform** and **Ansible** that build and
+> configure this environment live in a separate **private repository**.
+>
+> What is published here is the **architecture**, written to be understood without access
+> to the environment. Values that would be needed to operate it are **deliberately absent**.
 
 ### HomeLab Documentation
 
@@ -53,15 +57,14 @@ A home lab is easy to describe in a sentence and hard to hand to someone else. T
 configuration is spread across a **hypervisor**, a set of **containers**, a **DNS server**, a **reverse
 proxy** and two **automation tools**, and none of that is visible from the outside.
 
-This repository answers three questions without giving access to the environment itself:
+This repository answers three questions:
 
 - **What is running**, and on which machine.
 - **How a request reaches a service**, from the router down to the container.
 - **Which tool owns which responsibility**, and where the boundary between them sits.
 
 The separation is deliberate. The operational repository holds **state files**, **inventories**
-and **host-specific values**, and is not meant to be published. The architecture is, so it
-lives here on its own.
+and **host-specific values**, while the architecture lives here on its own.
 
 
 
@@ -82,8 +85,10 @@ is an **independent node** with a distinct role.
 
 ### DNS node
 
-A **Samsung** laptop with `4 GB` of memory and a `240 GB` SanDisk disk is dedicated to **DNS** and
-runs nothing else.
+A **Samsung** laptop is dedicated to **DNS** and runs nothing else:
+
+- **Memory:** `4 GB`
+- **Disk:** `240 GB` SanDisk
 
 Inside it, a **Debian** virtual machine hosts **AdGuard Home** in a **Docker** container. AdGuard
 Home is the DNS server for the whole network: it resolves every query, applies **four
@@ -96,9 +101,13 @@ hosts everything else**.
 
 ### Main node
 
-A **Lenovo IdeaPad S145** is the **main node**, registered in Proxmox as `homelab`. It has an
-`Intel i5-8265U` with `UHD 620` graphics, `12 GB` of memory, a `250 GB` Kingston NVMe for the
-**system**, and a `1 TB` Western Digital disk for **data**.
+A **Lenovo IdeaPad S145** is the **main node**, registered in Proxmox as `homelab`:
+
+- **CPU:** `Intel i5-8265U`
+- **Graphics:** `Intel UHD 620`
+- **Memory:** `12 GB`
+- **System disk:** `250 GB` Kingston NVMe
+- **Data disk:** `1 TB` Western Digital
 
 Every service other than DNS runs here, inside **LXC containers**. Each container has **Docker**
 installed, so the pattern is **one container per service**, with the service itself running as
@@ -185,12 +194,11 @@ the two halves of the automation**.
 | | This repository | Private repository |
 |-|-----------------|--------------------|
 | **Visibility** | Public | Private |
-| **Contains** | Architecture diagram and documentation | Terraform and Ansible code |
+| **Contains** | Architecture diagram and documentation | Terraform and Ansible code, scripts and other personal information |
 | **Purpose** | Explain the environment | Build and configure the environment |
 
-Both describe the same lab. This one is written so it can be read by someone who will
-never have access to the environment, so it carries **no addresses, no identifiers and no
-configuration values**. The private repository is the **operational source of truth**.
+Both describe the same lab. This one is meant to be read on its own, so it carries **no
+addresses, no identifiers and no configuration values**. The private repository is the **operational source of truth**.
 
 When the architecture changes, **both change**: the code in the private repository and the
 diagram here.
