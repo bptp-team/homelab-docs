@@ -63,14 +63,7 @@ The separation is deliberate. The operational repository holds state files, inve
 and host-specific values, and is not meant to be published. The architecture is, so it
 lives here on its own.
 
-## Repository layout
 
-```text
-homelab-docs/
-├── README.md                     this document
-└── docs/
-    └── homelab-diagram.svg       architecture diagram, exported from Draw.io
-```
 
 The diagram is the reference artifact of this repository. The text below describes the
 same environment in prose and uses the same terminology, so a name that appears in one
@@ -114,7 +107,7 @@ a container inside it.
 ### Services
 
 | Service | Role | Notes |
-|---|---|---|
+----------|------|-------|
 | **Nginx Proxy Manager** | Network reverse proxy | Entry point for the other services. The DNS rewrites in AdGuard Home point here. |
 | **Uptime Kuma** | Service availability monitoring | Watches the other services. |
 | **Kavita** | Digital book library | Exposes an OPDS catalog, so external readers can browse the library. |
@@ -190,7 +183,7 @@ the two halves of the automation.
 ## Relationship with the private repository
 
 | | This repository | Private repository |
-|---|---|---|
+|-|-----------------|--------------------|
 | Visibility | Public | Private |
 | Contains | Architecture diagram and documentation | Terraform and Ansible code |
 | Purpose | Explain the environment | Build and configure the environment |
@@ -202,8 +195,3 @@ configuration values. The private repository is the operational source of truth.
 When the architecture changes, both change: the code in the private repository and the
 diagram here.
 
-## About the diagram
-
-`docs/homelab-diagram.svg` is exported from Draw.io, with the icons inlined into the
-document so that it renders both inside this README and when opened on its own. A fresh
-export has to go through that step again before being committed.
