@@ -44,6 +44,24 @@
 
 ![HomeLab](docs/homelab-diagram.svg)
 
+## Contents
+
+- [What this repository is](#what-this-repository-is)
+- [Why it exists](#why-it-exists)
+- [The environment](#the-environment)
+  - [Network](#network)
+  - [DNS node](#dns-node)
+  - [Main node](#main-node)
+  - [Services](#services)
+  - [Storage](#storage)
+  - [How a request flows](#how-a-request-flows)
+- [Infrastructure as code](#infrastructure-as-code)
+  - [Terraform](#terraform)
+  - [Ansible](#ansible)
+  - [The handoff](#the-handoff)
+- [Relationship with the private repository](#relationship-with-the-private-repository)
+- [Roadmap](#roadmap)
+
 ## What this repository is
 
 This repository is the public documentation of a personal home lab built on **Proxmox
@@ -125,7 +143,7 @@ a container inside it.
 Every container carries **Terraform tags** that describe what it is: `docker` on all of them,
 plus `proxy`, `monitoring` or `media` depending on the service. Those tags are not
 decoration, they are **the mechanism that connects the two automation tools**. See
-*Infrastructure as code* below.
+[Infrastructure as code](#infrastructure-as-code) below.
 
 ### Storage
 
@@ -202,4 +220,15 @@ addresses, no identifiers and no configuration values**. The private repository 
 
 When the architecture changes, **both change**: the code in the private repository and the
 diagram here.
+
+## Roadmap
+
+Planned changes, in no particular order. When one is done, it moves into the sections above
+and into the diagram.
+
+- [ ] **DNS redundancy**: a second **AdGuard Home** instance, kept in sync with the first, so
+  name resolution survives the DNS node going down.
+- [ ] **Backups**: scheduled backups of the containers and of `/mnt/storage`.
+- [ ] **Remote access**: reach the services from outside the house through a **VPN**, without
+  exposing anything to the internet.
 
