@@ -45,20 +45,23 @@
 
 ## Contents
 
-- [Overview](#overview)
-- [The environment](#the-environment)
-  - [Network](#network)
-  - [Nodes](#nodes)
-  - [DNS node](#dns-node)
-  - [Main node](#main-node)
-  - [Services](#services)
-  - [Storage](#storage)
-  - [How a request flows](#how-a-request-flows)
-- [Infrastructure as code](#infrastructure-as-code)
-  - [Terraform](#terraform)
-  - [Ansible](#ansible)
-  - [The handoff](#the-handoff)
-- [Roadmap](#roadmap)
+- [HomeLab Documentation](#homelab-documentation)
+  - [Contents](#contents)
+  - [Overview](#overview)
+  - [The environment](#the-environment)
+    - [Network](#network)
+    - [Nodes](#nodes)
+    - [DNS node](#dns-node)
+    - [Main node](#main-node)
+    - [Services](#services)
+    - [Storage](#storage)
+    - [How a request flows](#how-a-request-flows)
+  - [Infrastructure as code](#infrastructure-as-code)
+    - [Terraform](#terraform)
+    - [Ansible](#ansible)
+    - [The handoff](#the-handoff)
+  - [Known limitations](#known-limitations)
+  - [Roadmap](#roadmap)
 
 ## Overview
 
@@ -92,7 +95,6 @@ is an **independent node** with a distinct role.
 | | DNS node | Main node |
 |-|----------|-----------|
 | **Laptop** | Samsung | Lenovo IdeaPad S145 |
-| **Proxmox name** | — | `homelab` |
 | **CPU** | — | `Intel i5-8265U` |
 | **Graphics** | — | `Intel UHD 620` |
 | **Memory** | `4 GB` | `12 GB` |
@@ -122,11 +124,11 @@ service itself running as a container inside it.
 ### Services
 
 | Service | Role | Notes |
-----------|------|-------|
+|---------|------|-------|
 | **Nginx Proxy Manager** | Network reverse proxy | **Entry point** for the other services. The DNS rewrites in **AdGuard Home** point here. |
 | **Uptime Kuma** | Service availability monitoring | Watches the other services. |
 | **Kavita** | Digital book library | Exposes an `OPDS` catalog, so external readers can browse the library. |
-| **Jellyfin** | Media server | Transcodes using **Intel Quick Sync**, provided by the `UHD 620` graphics. |
+| **Jellyfin** | Media server | Streams the library over the network. The `UHD 620` graphics can provide **Intel Quick Sync** for hardware transcoding once the device is passed into the container. |
 
 Every container carries **Terraform tags** that describe what it is: `docker` on all of them,
 plus `proxy`, `monitoring` or `media` depending on the service. Those tags are not
@@ -156,6 +158,9 @@ recreated** without touching the library.
    running the service.
 4. The service reads its data from the directory **bind mounted** from `/mnt/storage`.
 
+This is the intended path. See [Known limitations](#known-limitations) for the cases where a
+device takes a different route.
+
 ## Infrastructure as code
 
 The environment is **not configured by hand**. Two tools build it, with the responsibilities
@@ -174,31 +179,57 @@ Each service keeps **its own state**. A service can be **planned, applied or des
 own**, without touching the others. That is the reason for the **per-service split** rather than
 one root module iterating over a list.
 
+Containers that hold **state worth protecting** carry a `protection` flag, which blocks
+deletion at the **Proxmox level** rather than relying on the automation to be careful.
+
 ### Ansible
 
-**Ansible** configures the system inside the containers, using the `community.proxmox`
-collection. It has two roles:
+**Ansible** configures the system inside the containers. Three roles run in sequence:
 
-- `lxc_base` prepares the **operating system**.
-- `docker` installs and configures the **container runtime**.
+- `update-os` brings the **operating system** up to date.
+- `base-packages` installs the **shared tooling** every container gets.
+- `docker-install` sets up the **container runtime** from the official repository.
+
+Ansible never connects to the containers directly. The `community.proxmox` collection provides
+a **connection plugin** that runs `pct exec` over `SSH` on the hypervisor, reaching inside each
+container from the host.
+
+The consequence is that **no container needs an SSH server**, a key pair or a reachable address
+to be configured. The only account that exists for automation lives on the **hypervisor**, and
+its `sudo` rights are restricted to a **single command**.
 
 ### The handoff
 
 The two tools are **not chained by a generated file**. Terraform applies **tags** to each
-container, and Ansible reads those tags from the **Proxmox API** as a **dynamic inventory**. A
-container tagged `docker` lands in the group that receives the `docker` role, and the
-grouping follows from the provisioning itself.
+container, and Ansible reads those tags from the **Proxmox API** as a **dynamic inventory**,
+also through the `community.proxmox` collection. A container tagged `docker` lands in the
+group that receives the `docker-install` role, and the grouping follows from the
+provisioning itself.
 
 This is why the tags appear on every service in the diagram: they are **the contract between
 the two halves of the automation**.
 
+## Known limitations
+
+**DNS reaches devices inconsistently over IPv6.** The ISP router advertises **itself** as the
+`DNS` server through `IPv6` **Router Advertisements**, a channel its firmware does not expose
+for configuration. Devices that prefer `IPv6` bypass **AdGuard Home** entirely, which makes
+both the **blocklists** and the **local name resolution** unreliable across the network.
+
+The services are always reachable by address, so this affects **convenience**, not
+availability. Fixing it properly requires a router the lab controls, which is why **remote
+access** and **network control** sit together on the roadmap.
+
 ## Roadmap
 
-Planned changes, in no particular order. When one is done, it moves into the sections above
-and into the diagram.
+Planned changes, roughly in order of priority. When one is done, it moves into the sections
+above and into the diagram.
 
+- [ ] **Backups**: scheduled backups of the containers and of `/mnt/storage`. Nothing is backed
+  up today, so a disk failure would take the whole environment with it.
 - [ ] **DNS redundancy**: a second **AdGuard Home** instance, kept in sync with the first, so
   name resolution survives the DNS node going down.
-- [ ] **Backups**: scheduled backups of the containers and of `/mnt/storage`.
+- [ ] **Hardware transcoding**: pass the integrated graphics device into the **Jellyfin**
+  container so transcoding runs on the `UHD 620` instead of the `CPU`.
 - [ ] **Remote access**: reach the services from outside the house through a **VPN**, without
   exposing anything to the internet.
