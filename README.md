@@ -1,18 +1,17 @@
-> [!WARNING]
-> This repository is **documentation only**. It does not hold:
+> [!NOTE]
+> This repository contains the **architecture documentation** of the home lab: a diagram and a
+> written description of how the environment is built.
 >
-> - Infrastructure code;
-> - Configuration;
-> - Inventories;
-> - Credentials
+> Everything needed to build and operate the environment is kept in a separate **private
+> repository**:
 >
-> There is nothing here to clone and run. The **Terraform** and **Ansible** that build and
-> configure this environment live in a separate **private repository**.
+> - **Terraform** and **Ansible** code and scripts;
+> - State files and inventories;
+> - Credentials (if any), host-specific values and other personal information.
 >
-> What is published here is the **architecture**, written to be understood without access
-> to the environment. Values that would be needed to operate it are **deliberately absent**.
+> Both repositories are updated together whenever the architecture changes.
 
-### HomeLab Documentation
+# HomeLab Documentation
 
 <p align="justify">
     <img
@@ -46,8 +45,7 @@
 
 ## Contents
 
-- [What this repository is](#what-this-repository-is)
-- [Why it exists](#why-it-exists)
+- [Overview](#overview)
 - [The environment](#the-environment)
   - [Network](#network)
   - [DNS node](#dns-node)
@@ -59,36 +57,24 @@
   - [Terraform](#terraform)
   - [Ansible](#ansible)
   - [The handoff](#the-handoff)
-- [Relationship with the private repository](#relationship-with-the-private-repository)
 - [Roadmap](#roadmap)
 
-## What this repository is
+## Overview
 
-This repository is the public documentation of a personal home lab built on **Proxmox
-Virtual Environment**. It holds the **architecture diagram** and the written explanation of how
-the environment is put together: which machines exist, which services run on them, how
-they are connected, and which tool is responsible for each layer.
+A home lab is easy to describe in a sentence and hard to hand to someone else. This one runs
+on **Proxmox Virtual Environment**, and its configuration is spread across a **hypervisor**, a
+set of **containers**, a **DNS server**, a **reverse proxy** and two **automation tools**.
 
-## Why it exists
-
-A home lab is easy to describe in a sentence and hard to hand to someone else. The
-configuration is spread across a **hypervisor**, a set of **containers**, a **DNS server**, a **reverse
-proxy** and two **automation tools**, and none of that is visible from the outside.
-
-This repository answers three questions:
+This documentation answers three questions:
 
 - **What is running**, and on which machine.
 - **How a request reaches a service**, from the router down to the container.
 - **Which tool owns which responsibility**, and where the boundary between them sits.
 
-The separation is deliberate. The operational repository holds **state files**, **inventories**
-and **host-specific values**, while the architecture lives here on its own.
-
-
-
-The diagram is the **reference artifact** of this repository. The text below describes the
-same environment in prose and uses the same terminology, so a name that appears in one
-appears in the other.
+The diagram is the **reference artifact**. The text below describes the same environment in
+prose and uses the same terminology, so a name that appears in one appears in the other. In
+the diagram, a **solid line** is a **network path** and a **dashed line** is a **logical
+relationship**, such as a directory mount, a reverse proxy route, or an automation step.
 
 ## The environment
 
@@ -168,9 +154,6 @@ recreated** without touching the library.
    running the service.
 4. The service reads its data from the directory **bind mounted** from `/mnt/storage`.
 
-In the diagram, a **solid line** is a **network path** and a **dashed line** is a **logical
-relationship**, such as a directory mount, a reverse proxy route, or an automation step.
-
 ## Infrastructure as code
 
 The environment is **not configured by hand**. Two tools build it, with the responsibilities
@@ -178,7 +161,7 @@ split along a clear line: **Terraform provisions, Ansible configures.**
 
 ### Terraform
 
-**Terraform** creates the **LXC containers** on Proxmox, using the `bpg/proxmox` provider. Its
+**Terraform** creates the **LXC containers** on Proxmox, using the [`bpg/proxmox`](https://registry.terraform.io/providers/bpg/proxmox/latest/docs) provider. Its
 layout has two levels:
 
 - `modules/lxc` is a single **reusable module** that describes what a container is.
@@ -207,20 +190,6 @@ grouping follows from the provisioning itself.
 This is why the tags appear on every service in the diagram: they are **the contract between
 the two halves of the automation**.
 
-## Relationship with the private repository
-
-| | This repository | Private repository |
-|-|-----------------|--------------------|
-| **Visibility** | Public | Private |
-| **Contains** | Architecture diagram and documentation | Terraform and Ansible code, scripts and other personal information |
-| **Purpose** | Explain the environment | Build and configure the environment |
-
-Both describe the same lab. This one is meant to be read on its own, so it carries **no
-addresses, no identifiers and no configuration values**. The private repository is the **operational source of truth**.
-
-When the architecture changes, **both change**: the code in the private repository and the
-diagram here.
-
 ## Roadmap
 
 Planned changes, in no particular order. When one is done, it moves into the sections above
@@ -231,4 +200,3 @@ and into the diagram.
 - [ ] **Backups**: scheduled backups of the containers and of `/mnt/storage`.
 - [ ] **Remote access**: reach the services from outside the house through a **VPN**, without
   exposing anything to the internet.
-
