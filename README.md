@@ -48,6 +48,7 @@
 - [Overview](#overview)
 - [The environment](#the-environment)
   - [Network](#network)
+  - [Nodes](#nodes)
   - [DNS node](#dns-node)
   - [Main node](#main-node)
   - [Services](#services)
@@ -61,11 +62,10 @@
 
 ## Overview
 
-A home lab is easy to describe in a sentence and hard to hand to someone else. This one runs
-on **Proxmox Virtual Environment**, and its configuration is spread across a **hypervisor**, a
-set of **containers**, a **DNS server**, a **reverse proxy** and two **automation tools**.
-
-This documentation answers three questions:
+This home lab runs on **Proxmox Virtual Environment**, with its configuration spread across a
+**hypervisor**, a set of **containers**, a **DNS server**, a **reverse proxy** and two
+**automation tools**. This documentation brings those pieces together in one place and answers
+three questions:
 
 - **What is running**, and on which machine.
 - **How a request reaches a service**, from the router down to the container.
@@ -84,19 +84,29 @@ A single **private local network** sits behind the **ISP router**, which acts as
 gateway and `DHCP` server. Everything in the lab is on that network. **Nothing is exposed to
 the internet.**
 
+### Nodes
+
 Two repurposed laptops run **Proxmox Virtual Environment**. They are **not a cluster**: each one
 is an **independent node** with a distinct role.
 
+| | DNS node | Main node |
+|-|----------|-----------|
+| **Laptop** | Samsung | Lenovo IdeaPad S145 |
+| **Proxmox name** | — | `homelab` |
+| **CPU** | — | `Intel i5-8265U` |
+| **Graphics** | — | `Intel UHD 620` |
+| **Memory** | `4 GB` | `12 GB` |
+| **System disk** | `240 GB` SanDisk | `250 GB` Kingston NVMe |
+| **Data disk** | — | `1 TB` Western Digital |
+| **Role** | DNS for the whole network | Every other service |
+| **Guests** | One Debian VM | One LXC container per service |
+
 ### DNS node
 
-A **Samsung** laptop is dedicated to **DNS** and runs nothing else:
-
-- **Memory:** `4 GB`;
-- **Disk:** `240 GB` SanDisk.
-
-Inside it, a **Debian** virtual machine hosts **AdGuard Home** in a **Docker** container. AdGuard
-Home is the DNS server for the whole network: it resolves every query, applies **four
-blocklists**, and holds the **DNS rewrites** that point local names to the **reverse proxy**.
+The **Samsung** laptop is dedicated to **DNS** and runs nothing else. Inside it, a **Debian**
+virtual machine hosts **AdGuard Home** in a **Docker** container. AdGuard Home is the DNS
+server for the whole network: it resolves every query, applies **four blocklists**, and holds
+the **DNS rewrites** that point local names to the **reverse proxy**.
 
 The layering is worth reading literally in the diagram: a **physical laptop**, running a
 **hypervisor**, running a **virtual machine**, running **Docker**, running **one service**. The only
@@ -105,17 +115,9 @@ hosts everything else**.
 
 ### Main node
 
-A **Lenovo IdeaPad S145** is the **main node**, registered in Proxmox as `homelab`:
-
-- **CPU:** `Intel i5-8265U`;
-- **Graphics:** `Intel UHD 620`;
-- **Memory:** `12 GB`;
-- **System disk:** `250 GB` Kingston NVMe;
-- **Data disk:** `1 TB` Western Digital.
-
-Every service other than DNS runs here, inside **LXC containers**. Each container has **Docker**
-installed, so the pattern is **one container per service**, with the service itself running as
-a container inside it.
+The **Lenovo IdeaPad S145** hosts every service other than DNS, inside **LXC containers**. Each
+container has **Docker** installed, so the pattern is **one container per service**, with the
+service itself running as a container inside it.
 
 ### Services
 
