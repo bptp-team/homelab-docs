@@ -61,7 +61,9 @@
     - [Ansible](#ansible)
     - [The handoff](#the-handoff)
   - [Known limitations](#known-limitations)
-  - [Roadmap](#roadmap)
+  - [What comes next](#what-comes-next)
+    - [Software](#software)
+    - [Hardware](#hardware)
 
 ## Overview
 
@@ -217,19 +219,41 @@ for configuration. Devices that prefer `IPv6` bypass **AdGuard Home** entirely, 
 both the **blocklists** and the **local name resolution** unreliable across the network.
 
 The services are always reachable by address, so this affects **convenience**, not
-availability. Fixing it properly requires a router the lab controls, which is why **remote
-access** and **network control** sit together on the roadmap.
+availability. Fixing it properly requires a router the lab controls, which is why **network
+control** sits on the list below.
 
-## Roadmap
+**High availability is out of reach with one node.** Replication and failover need more than
+one machine, and most of the services here keep local state that does not survive being
+written by two instances at once. Kubernetes in this lab is about **declarative operation**,
+not **availability**.
+
+## What comes next
 
 Planned changes, roughly in order of priority. When one is done, it moves into the sections
 above and into the diagram.
+
+### Software
 
 - [ ] **Backups**: scheduled backups of the containers and of `/mnt/storage`. Nothing is backed
   up today, so a disk failure would take the whole environment with it.
 - [ ] **DNS redundancy**: a second **AdGuard Home** instance, kept in sync with the first, so
   name resolution survives the DNS node going down.
+- [ ] **Kubernetes**: run a single-node **K3s** cluster in its own container, as a place to
+  learn and experiment without affecting the services above.
+- [ ] **Migrate a service to Kubernetes**: move one of the existing services onto the cluster
+  and keep it running there.
+- [ ] **Immich**: self-hosted photo and video library, with automatic backup from mobile
+  devices.
 - [ ] **Hardware transcoding**: pass the integrated graphics device into the **Jellyfin**
   container so transcoding runs on the `UHD 620` instead of the `CPU`.
 - [ ] **Remote access**: reach the services from outside the house through a **VPN**, without
   exposing anything to the internet.
+
+### Hardware
+
+- [ ] **Memory expansion**: more `RAM` on the main node, so the Kubernetes cluster and the new
+  services fit alongside what already runs there.
+- [ ] **Dedicated backup disk**: a separate disk for backups, so a failure of the system disk
+  does not take the backups with it.
+- [ ] **Network control**: a router the lab controls, which is what the `IPv6` limitation above
+  ultimately requires.
