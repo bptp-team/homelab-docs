@@ -108,9 +108,10 @@ is an **independent node** with a distinct role.
 ### DNS node
 
 The **Samsung** laptop is dedicated to **DNS** and runs nothing else. Inside it, a **Debian**
-virtual machine hosts **AdGuard Home** in a **Docker** container. AdGuard Home is the DNS
-server for the whole network: it resolves every query, applies **four blocklists**, and holds
-the **DNS rewrites** that point local names to the **reverse proxy**.
+virtual machine hosts **[AdGuard Home](https://adguard.com/adguard-home/overview.html)** in a
+**Docker** container. AdGuard Home is the DNS server for the whole network: it resolves every
+query, applies **four blocklists**, and holds the **DNS rewrites** that point local names to
+the **reverse proxy**.
 
 The layering is worth reading literally in the diagram: a **physical laptop**, running a
 **hypervisor**, running a **virtual machine**, running **Docker**, running **one service**. The only
@@ -127,10 +128,10 @@ service itself running as a container inside it.
 
 | Service | Role | Notes |
 |---------|------|-------|
-| **Nginx Proxy Manager** | Network reverse proxy | **Entry point** for the other services. The DNS rewrites in **AdGuard Home** point here. |
-| **Uptime Kuma** | Service availability monitoring | Watches the other services. |
-| **Kavita** | Digital book library | Exposes an `OPDS` catalog, so external readers can browse the library. |
-| **Jellyfin** | Media server | Streams the library over the network. The `UHD 620` graphics can provide **Intel Quick Sync** for hardware transcoding once the device is passed into the container. |
+| **[Nginx Proxy Manager](https://nginxproxymanager.com/)** | Network reverse proxy | **Entry point** for the other services. The DNS rewrites in **AdGuard Home** point here. |
+| **[Uptime Kuma](https://uptime.kuma.pet/)** | Service availability monitoring | Watches the other services. |
+| **[Kavita](https://www.kavitareader.com/)** | Digital book library | Exposes an `OPDS` catalog, so external readers can browse the library. |
+| **[Jellyfin](https://jellyfin.org/)** | Media server | Streams the library over the network. The `UHD 620` graphics can provide **Intel Quick Sync** for hardware transcoding once the device is passed into the container. |
 
 Every container carries **Terraform tags** that describe what it is: `docker` on all of them,
 plus `proxy`, `monitoring` or `media` depending on the service. Those tags are not
